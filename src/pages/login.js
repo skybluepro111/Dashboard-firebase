@@ -19,7 +19,7 @@ import Button from "apsl-react-native-button";
 import FontAwesomeIcon from "react-native-vector-icons/FontAwesome";
 import {Sae} from "react-native-textinput-effects";
 import DismissKeyboard from "dismissKeyboard";
-
+import { Constants, Facebook, Google, MapView } from 'expo';
 import CommonStyle from "../components/styles.css";
 
 export default class Login extends Component {
@@ -87,6 +87,46 @@ export default class Login extends Component {
 
     }
 
+     _handleFacebookLogin = async () => {
+    try {
+      const { type, token } = await Facebook.logInWithReadPermissionsAsync(
+        '142475749635054', // Replace with your own app id in standalone app
+        { permissions: ['public_profile'] }
+      );
+
+      switch (type) {
+        case 'success': {
+          // Get the user's name using Facebook's Graph API
+          const response = await fetch(`https://graph.facebook.com/me?access_token=${token}`);
+          const profile = await response.json();
+          Alert.alert(
+            'Logged in!',
+            `Hi ${profile.name}!`,
+          );
+          break;
+        }
+        case 'cancel': {
+          Alert.alert(
+            'Cancelled!',
+            'Login was cancelled!',
+          );
+          break;
+        }
+        default: {
+          Alert.alert(
+            'Oops!',
+            'Login failed!',
+          );
+        }
+      }
+    } catch (e) {
+      Alert.alert(
+        'Oops!',
+        'Login failed!',
+      );
+    }
+  };
+
     render() {
 
         return (
@@ -110,8 +150,15 @@ export default class Login extends Component {
                                 onChangeText={(password) => this.setState({password})}
                                 password={true}    />
                         </View>
+                        <MapView
+                            style={{ alignSelf: 'stretch', height: 200 }}
+                            region={this.state.mapRegion}
+                            onRegionChange={this._handleMapRegionChange}
+                            />
 
                         <View style={styles.submit}>
+                             <Button    title="Login with Facebook"   onPress={this._handleFacebookLogin}
+        />
                             <Button onPress={this.signup} style={CommonStyle.buttons} textStyle={{fontSize: 18}}>
                                 Sign up
                             </Button>

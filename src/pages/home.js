@@ -12,14 +12,16 @@ import {Icon} from 'native-base';
 
 import Button from "apsl-react-native-button";
 import * as firebase from "firebase";
-import {Hideo} from "react-native-textinput-effects";
-
+import SideBar from '../components/sidebar';
+import Main from '../components/main';
 import CommonStyle from "../components/styles.css";
 import DismissKeyboard from "dismissKeyboard";
+import Drawer from 'react-native-drawer';
+
 
 export default class Home extends Component {
 
-     static navigationOptions = {
+    static navigationOptions = {
         title: 'Welcome',
     };
 
@@ -31,7 +33,8 @@ export default class Home extends Component {
             mobile: "",
             mobileForm: "",
             switchValue1: false,
-            switchValue2: true
+            switchValue2: true,
+            drawerOpened: false
         };
 
         this.logout = this.logout.bind(this);
@@ -39,11 +42,9 @@ export default class Home extends Component {
 
     }
 
-    async logout() {
-        
+    async logout() {        
         console.log("logout")
         try {
-
             await firebase.auth().signOut();
             const { navigate } = this.props.navigation;
             navigate('Login', { name: 'Jane' })
@@ -51,31 +52,33 @@ export default class Home extends Component {
         } catch (error) {
             console.log(error);
         }
-
     }
 
-    // logout() {
-        
-    //     console.log("logout")
-        
-    //         const { navigate } = this.props.navigation;
-    //         navigate('Login', { name: 'Jane' })
-     
+   
 
-    // }
-
-    toggleSwitch1 = (value) => this.setState({ switchValue2: value })
+    toggleSwitch1 = (value) => this.setState({ switchValue1: value })
 
     toggleSwitch2 = (value) => this.setState({ switchValue2: value })
-
     
-
     render() {
-
+     
         return (
+            <Drawer 
+                content          = {<SideBar {...this.props}/>}
+                onClose          = { () => this.setState({ drawerOpened: false }) }
+                open             = { this.state.drawerOpened }
+                openDrawerOffset =	{ .35 }
+                tapToClose       =	{ true }
+                type             =	"overlay"
+            >
             <View style={{flex: 1, marginTop: 30, backgroundColor: 'white'}}>
-                <View style={{flex: 2, alignItems: 'center', justifyContent: 'center', borderWidth: 3, borderColor: '#ccc'}}>
-                    <Text style={{fontSize: 20}}>Dashboard</Text>
+                <View style={{flex: 2, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', borderWidth: 3, borderColor: '#ccc'}}>
+                    <TouchableOpacity style ={{paddingLeft:10}} onPress={() => this.setState({ drawerOpened: true })}>
+                       <Icon  name="menu"/>
+                    </TouchableOpacity>    
+                    <Text style={{fontSize: 20}} >Dashboard</Text>  
+                    <Text></Text>
+                  
                 </View>
                 <View style={{flex: 1, padding: 10, flexDirection: 'row', justifyContent: 'space-between', borderBottomWidth: 2, borderBottomColor: '#ddd'}}>
                     <View style={{flexDirection: 'row'}}>
@@ -110,6 +113,8 @@ export default class Home extends Component {
                     <Icon name="alarm" />
                 </View>
             </View>
+             </Drawer>
+
         );
     }
 }
